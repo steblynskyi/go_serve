@@ -1,0 +1,19 @@
+node ('golang') {
+    def envBranches              = '^(master)$'
+    def isEnvBranch              = (env.BRANCH_NAME ==~ envBranches)
+
+    if(!(isEnvBranch)) {
+        echo "Skip build for branch: '${env.BRANCH_NAME}'. Aborting Jenkins build with success."
+        echo "Builds will run for: master, qa, develop, hotfix, and pull requests."
+        return
+    }
+    stage ('Checkout'){
+      checkout scm
+    }
+    stage ('build iamge') {
+      sh 'make container'
+    }
+    stage ('deploy image') {
+      sh 'make push'
+    }
+}
